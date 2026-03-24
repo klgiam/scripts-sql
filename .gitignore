@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# Do not track generated/input datasets and output SQL scripts
+data/
+sql/
