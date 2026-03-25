@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 import csv
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 
 
 TABLE_NAME = "CRWD_DNSTY.DNSTY.DNSTY"
-FIXED_INTERVALTIME = "2026-03-23 17:00:00.000"
+TODAY = date.today()
 COLUMN_ORDER = [
     "intervaltime",
     "intervaltime_epoch",
@@ -25,9 +25,16 @@ def escape_sql_string(value: str) -> str:
     return value.replace("'", "''")
 
 
-def sql_literal(column_name: str, value: str) -> str:
+def intervaltime_with_today(original: str) -> str:
+    dt = datetime.strptime(original.strip(), "%Y-%m-%d %H:%M:%S.%f")
+    dt = dt.replace(year=TODAY.year, month=TODAY.month, day=TODAY.day)
+    ms = dt.microsecond // 1000
+    return dt.strftime("%Y-%m-%d %H:%M:%S.") + f"{ms:03d}"
+
+
+def sql_literal(column_name: str, value: str, row: dict[str, str] = None) -> str:
     if column_name == "intervaltime":
-        return f"'{FIXED_INTERVALTIME}'"
+        return f"'{intervaltime_with_today(row['intervaltime'])}'"
 
     if column_name == "loadg_dtm":
         return "CURRENT_TIMESTAMP"
@@ -49,7 +56,7 @@ def sql_literal(column_name: str, value: str) -> str:
 
 
 def build_insert_statement(row: dict[str, str]) -> str:
-    values = [sql_literal(column_name, row.get(column_name)) for column_name in COLUMN_ORDER]
+    values = [sql_literal(column_name, row.get(column_name), row) for column_name in COLUMN_ORDER]
     columns = ", ".join(COLUMN_ORDER)
     rendered_values = ", ".join(values)
     return f"INSERT INTO {TABLE_NAME} ({columns}) VALUES ({rendered_values});"
@@ -65,7 +72,7 @@ def generate_sql(csv_path: Path, output_path: Path) -> int:
     with output_path.open("w", encoding="utf-8") as output_file:
         output_file.write(f"-- Generated from {csv_path.name}\n")
         output_file.write(f"-- Target table: {TABLE_NAME}\n")
-        output_file.write(f"-- Fixed intervaltime: {FIXED_INTERVALTIME}\n")
+        output_file.write(f"-- intervaltime: today's date ({TODAY}) with original time portion\n")
         output_file.write("-- loadg_dtm: CURRENT_TIMESTAMP\n\n")
         output_file.write("\n".join(statements))
         output_file.write("\n")
