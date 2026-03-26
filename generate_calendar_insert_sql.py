@@ -18,6 +18,19 @@ def escape_sql_string(value: str) -> str:
     return value.replace("'", "''")
 
 
+def normalise_date(value: str) -> str:
+    """Convert D/M/YYYY to YYYY-MM-DD; leave YYYY-MM-DD unchanged."""
+    try:
+        return datetime.strptime(value, "%d/%m/%Y").strftime("%Y-%m-%d")
+    except ValueError:
+        pass
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+        return value  # already in correct format
+    except ValueError:
+        return value  # unrecognised format — return as-is
+
+
 def sql_literal(column_name: str, value: str) -> str:
     if column_name == "LOADG_DTM":
         return "CURRENT_TIMESTAMP"
@@ -28,6 +41,9 @@ def sql_literal(column_name: str, value: str) -> str:
     trimmed = value.strip()
     if trimmed == "":
         return "NULL"
+
+    if column_name == "CAL_D":
+        trimmed = normalise_date(trimmed)
 
     return f"'{escape_sql_string(trimmed)}'"
 

@@ -15,10 +15,6 @@
    - URL: https://www.mom.gov.sg/employment-practices/public-holidays
    - Lists all gazetted public holidays for the current and upcoming year.
 
-2. Alternatively, use the **data.gov.sg** open dataset:
-   - URL: https://data.gov.sg/datasets/d_3751791452397f748de72aa5a3a2cb7/view
-   - Provides a downloadable CSV of public holidays by year.
-
 ### How to update PH_F in the CSV
 
 For any date that falls on a public holiday, change `PH_F` from `N` to `Y`.
@@ -37,3 +33,8 @@ After:  2026-04-03,Weekday,Y,Y
 |---|---|
 | 2026-03-20 | Hari Raya Puasa (Eid al-Fitr) |
 | 2026-04-03 | Good Friday |
+
+### School Holidays
+For dates within the range below, they are non term time days, so TERM_F = N
+Vacation: 12 weeks  Sun, 10 May 2026 ~ Sun, 2 Aug 2026 
+Vacation: 5 weeks  Sun, 7 Dec 2025 ~ Sun, 11 Jan 2026 
