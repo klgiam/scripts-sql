@@ -5,4 +5,4 @@
 - intervaltime -> use today's date for the date part but retain the time portion. E.g. 2026-03-24 23:55:00.000 -> 2026-03-25 23:55:00.000
 - loadg_dtm -> use CURRENT_TIMESTAMP
 - generate sql file INSERT_DNSTY_<timestamp>.sql
-
+- only need data from 08:00:00 to 20:00:00

@@ -62,10 +62,20 @@ def build_insert_statement(row: dict[str, str]) -> str:
     return f"INSERT INTO {TABLE_NAME} ({columns}) VALUES ({rendered_values});"
 
 
+TIME_START = (8, 0, 0)
+TIME_END = (20, 0, 0)
+
+
+def in_time_range(intervaltime: str) -> bool:
+    dt = datetime.strptime(intervaltime.strip(), "%Y-%m-%d %H:%M:%S.%f")
+    t = (dt.hour, dt.minute, dt.second)
+    return TIME_START <= t <= TIME_END
+
+
 def generate_sql(csv_path: Path, output_path: Path) -> int:
     with csv_path.open("r", newline="", encoding="utf-8-sig") as csv_file:
         reader = csv.DictReader(csv_file)
-        rows = list(reader)
+        rows = [row for row in reader if in_time_range(row["intervaltime"])]
 
     statements = [build_insert_statement(row) for row in rows]
 
